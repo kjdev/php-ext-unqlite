@@ -9,40 +9,40 @@ if (!extension_loaded('unqlite')) {
     dl('callmap.' . PHP_SHLIB_SUFFIX);
 }
 
-$db = dirname(__FILE__) . '/001.db';
+include_once dirname(__FILE__) . '/func.inc';
+
+$db = _db_init(__FILE__);
 
 $kv = new Kv($db);
 var_dump($kv);
 
-var_dump($kv->store("foo", "bar"));
-var_dump($kv->fetch("foo"));
-var_dump($kv->delete("foo"));
-var_dump($kv->fetch("foo"));
+_kv_store($kv, "foo", "bar");
+_kv_fetch($kv, "foo");
+_kv_delete($kv, "foo");
+_kv_fetch($kv, "foo");
 
-var_dump($kv->store("test", "123"));
-var_dump($kv->fetch("test"));
-var_dump($kv->append("test", "456"));
-var_dump($kv->fetch("test"));
+_kv_store($kv, "test", "123");
+_kv_fetch($kv, "test");
+_kv_append($kv, "test", "456");
+_kv_fetch($kv, "test");
 
 $kv = new Kv("/path/to/unexisted/file");
 var_dump($kv);
-var_dump($kv->fetch("x"));
+_kv_fetch($kv, "x");
 
-if (is_file($db)) {
-    unlink($db);
-}
+_db_release($db);
 ?>
 --EXPECTF--
 object(UnQLite\Kv)#%d (0) {
 }
-bool(true)
-string(3) "bar"
-bool(true)
-bool(false)
-bool(true)
-string(3) "123"
-bool(true)
-string(6) "123456"
+store: foo: true
+fetch: foo: 'bar'
+delete: foo: true
+fetch: foo: false
+store: test: true
+fetch: test: '123'
+append: test: true
+fetch: test: '123456'
 object(UnQLite\Kv)#%d (0) {
 }
-bool(false)
+fetch: x: false

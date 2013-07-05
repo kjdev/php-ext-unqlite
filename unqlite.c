@@ -66,37 +66,39 @@ typedef struct {
 ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_none, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv___construct, 0, 0, 1)
-    ZEND_ARG_INFO(0, filename)
-    ZEND_ARG_INFO(0, flags)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv_key_val, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_key_val, 0, 0, 2)
     ZEND_ARG_INFO(0, key)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv_key, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_key, 0, 0, 1)
     ZEND_ARG_INFO(0, key)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv_cursor, 0, 0, 0)
-    ZEND_ARG_INFO(0, pos)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_option, 0, 0, 0)
+    ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_key_option, 0, 0, 1)
+    ZEND_ARG_INFO(0, key)
+    ZEND_ARG_INFO(0, option)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv___construct, 0, 0, 1)
+    ZEND_ARG_INFO(0, filename)
+    ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv_cursor___construct, 0, 0, 1)
     ZEND_ARG_INFO(0, kv)
-    ZEND_ARG_INFO(0, pos)
+    ZEND_ARG_INFO(0, option)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_unqlite_kv_cursor_seek, 0, 0, 1)
-    ZEND_ARG_INFO(0, key)
-    ZEND_ARG_INFO(0, opt)
-ZEND_END_ARG_INFO()
-
+#define php_error_out_of_memory() \
+    php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to allocate memory")
 
 static void
-php_unqlite_error(php_unqlite_kv_t *intern, int flags TSRMLS_DC)
+php_unqlite_kv_error(php_unqlite_kv_t *intern, int flags TSRMLS_DC)
 {
     const char *msg = NULL;
     int len = 0;
@@ -113,8 +115,22 @@ php_unqlite_error(php_unqlite_kv_t *intern, int flags TSRMLS_DC)
     }
 }
 
-#define UNQLITE_KV(name)                                                \
-    name = (php_unqlite_kv_t *)zend_object_store_get_object(getThis() TSRMLS_CC)
+static inline unqlite *
+php_unqlite_kv_get_db(zval *link TSRMLS_DC)
+{
+    php_unqlite_kv_t *intern;
+
+    intern = (php_unqlite_kv_t *)zend_object_store_get_object(link TSRMLS_CC);
+    if (intern && intern->db) {
+        return intern->db;
+    }
+
+    return NULL;
+}
+
+#define UNQLITE_KV(name)                                     \
+    name = (php_unqlite_kv_t *)zend_object_store_get_object( \
+        getThis() TSRMLS_CC)
 #define UNQLITE_KV_CHECKED(name)                        \
     UNQLITE_KV(name);                                   \
     if (!((name)->init)) {                              \
@@ -130,7 +146,7 @@ ZEND_UNQLITE_METHOD(Kv, __construct)
     php_unqlite_kv_t *intern;
     char *filename, *fullpath = NULL;
     int filename_len;
-    long flags = UNQLITE_OPEN_CREATE;
+    long mode = UNQLITE_OPEN_CREATE;
 #if ZEND_MODULE_API_NO >= 20090626
     zend_error_handling error_handling;
     zend_replace_error_handling(EH_THROW, NULL, &error_handling TSRMLS_CC);
@@ -138,8 +154,8 @@ ZEND_UNQLITE_METHOD(Kv, __construct)
     php_set_error_handling(EH_THROW, NULL TSRMLS_CC);
 #endif
 
-    rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "p|ls",
-                               &filename, &filename_len, &flags);
+    rc = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "p|l",
+                               &filename, &filename_len, &mode);
 
 #if ZEND_MODULE_API_NO >= 20090626
     zend_restore_error_handling(&error_handling TSRMLS_CC);
@@ -181,7 +197,11 @@ ZEND_UNQLITE_METHOD(Kv, __construct)
         fullpath = estrdup(filename);
     }
 
-    if (unqlite_open(&(intern->db), fullpath, flags) != UNQLITE_OK) {
+    if (mode <= 0) {
+        mode = UNQLITE_OPEN_CREATE;
+    }
+
+    if (unqlite_open(&(intern->db), fullpath, mode) != UNQLITE_OK) {
         zend_throw_exception_ex(zend_exception_get_default(TSRMLS_C),
                                 0 TSRMLS_CC, "Unable to open database: %s",
                                 fullpath);
@@ -210,7 +230,7 @@ ZEND_UNQLITE_METHOD(Kv, close)
 
     if (intern->init) {
         if (unqlite_close(intern->db) != UNQLITE_OK) {
-            php_unqlite_error(intern, E_ERROR TSRMLS_CC);
+            php_unqlite_kv_error(intern, E_ERROR TSRMLS_CC);
             RETURN_FALSE;
         }
         intern->init = 0;
@@ -223,7 +243,7 @@ ZEND_UNQLITE_METHOD(Kv, store)
 {
     php_unqlite_kv_t *intern;
     char *key, *val;
-    int key_len, val_len;
+    int rc, key_len, val_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &key, &key_len, &val, &val_len) == FAILURE) {
@@ -232,16 +252,19 @@ ZEND_UNQLITE_METHOD(Kv, store)
 
     UNQLITE_KV_CHECKED(intern);
 
-    if (unqlite_kv_store(intern->db, key, key_len, val, val_len) == UNQLITE_OK) {
+    rc = unqlite_kv_store(intern->db, key, key_len, val, val_len);
+    if (rc == UNQLITE_OK) {
         RETURN_TRUE;
     }
 
     /* fail */
-    php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
 
     /* rollback the transaction  */
-    if (unqlite_rollback(intern->db) != UNQLITE_OK) {
-        php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    if (rc != UNQLITE_BUSY && rc != UNQLITE_NOTIMPLEMENTED) {
+        if (unqlite_rollback(intern->db) != UNQLITE_OK) {
+            php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
+        }
     }
 
     RETURN_FALSE;
@@ -251,7 +274,7 @@ ZEND_UNQLITE_METHOD(Kv, append)
 {
     php_unqlite_kv_t *intern;
     char *key, *val;
-    int key_len, val_len;
+    int rc, key_len, val_len;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss",
                               &key, &key_len, &val, &val_len) == FAILURE) {
@@ -260,17 +283,19 @@ ZEND_UNQLITE_METHOD(Kv, append)
 
     UNQLITE_KV_CHECKED(intern);
 
-    if (unqlite_kv_append(intern->db,
-                          key, key_len, val, val_len) == UNQLITE_OK) {
+    rc = unqlite_kv_append(intern->db, key, key_len, val, val_len);
+    if (rc == UNQLITE_OK) {
         RETURN_TRUE;
     }
 
     /* fail */
-    php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
 
     /* rollback the transaction  */
-    if (unqlite_rollback(intern->db) != UNQLITE_OK) {
-        php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    if (rc != UNQLITE_BUSY && rc != UNQLITE_NOTIMPLEMENTED) {
+        if (unqlite_rollback(intern->db) != UNQLITE_OK) {
+            php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
+        }
     }
 
     RETURN_FALSE;
@@ -297,7 +322,7 @@ ZEND_UNQLITE_METHOD(Kv, fetch)
 
     buf = (char *)emalloc(len + 1);
     if (!buf) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Allocate buffer");
+        php_error_out_of_memory();
         RETURN_FALSE;
     }
 
@@ -312,7 +337,7 @@ ZEND_UNQLITE_METHOD(Kv, fetch)
     }
 
     /* fail */
-    php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
 
     if (buf) {
         efree(buf);
@@ -339,27 +364,14 @@ ZEND_UNQLITE_METHOD(Kv, delete)
     }
 
     /* fail */
-    php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+    php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
 
     /* rollback the transaction  */
     if (unqlite_rollback(intern->db) != UNQLITE_OK) {
-        php_unqlite_error(intern, E_WARNING TSRMLS_CC);
+        php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
     }
 
     RETURN_FALSE;
-}
-
-static inline unqlite *
-php_unqlite_kv_get_db(zval *link TSRMLS_DC)
-{
-    php_unqlite_kv_t *intern;
-
-    intern = (php_unqlite_kv_t *)zend_object_store_get_object(link TSRMLS_CC);
-    if (intern && intern->db) {
-        return intern->db;
-    }
-
-    return NULL;
 }
 
 ZEND_UNQLITE_METHOD(Kv, cursor)
@@ -404,9 +416,95 @@ ZEND_UNQLITE_METHOD(Kv, cursor)
     }
 }
 
+ZEND_UNQLITE_METHOD(Kv, config)
+{
+    php_unqlite_kv_t *intern;
+    long opt;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l",
+                              &opt) == FAILURE) {
+        return;
+    }
+
+    UNQLITE_KV_CHECKED(intern);
+
+    if (opt == UNQLITE_CONFIG_DISABLE_AUTO_COMMIT) {
+        if (unqlite_config(intern->db, opt) == UNQLITE_OK) {
+            RETURN_TRUE;
+        }
+        php_unqlite_kv_error(intern, E_WARNING TSRMLS_CC);
+    } else {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "unknown config option");
+    }
+
+    RETURN_FALSE;
+}
+
+
+ZEND_UNQLITE_METHOD(Kv, begin)
+{
+    php_unqlite_kv_t *intern;
+
+    if (zend_parse_parameters_none() == FAILURE) {
+        return;
+    }
+
+    UNQLITE_KV_CHECKED(intern);
+
+    if (unqlite_begin(intern->db) == UNQLITE_OK) {
+        RETURN_TRUE;
+    }
+
+    php_unqlite_kv_error(intern, E_ERROR TSRMLS_CC);
+
+    RETURN_FALSE;
+}
+
+ZEND_UNQLITE_METHOD(Kv, commit)
+{
+    php_unqlite_kv_t *intern;
+
+    if (zend_parse_parameters_none() == FAILURE) {
+        return;
+    }
+
+    UNQLITE_KV_CHECKED(intern);
+
+    if (unqlite_commit(intern->db) == UNQLITE_OK) {
+        RETURN_TRUE;
+    }
+
+    php_unqlite_kv_error(intern, E_ERROR TSRMLS_CC);
+
+    RETURN_FALSE;
+}
+
+ZEND_UNQLITE_METHOD(Kv, rollback)
+{
+    php_unqlite_kv_t *intern;
+
+    if (zend_parse_parameters_none() == FAILURE) {
+        return;
+    }
+
+    UNQLITE_KV_CHECKED(intern);
+
+    if (unqlite_rollback(intern->db) == UNQLITE_OK) {
+        RETURN_TRUE;
+    }
+
+    php_unqlite_kv_error(intern, E_ERROR TSRMLS_CC);
+
+    RETURN_FALSE;
+}
+
 #define UNQLITE_KV_CURSOR(name)                                     \
     name = (php_unqlite_kv_cursor_t *)zend_object_store_get_object( \
         getThis() TSRMLS_CC)
+#define php_unqlite_kv_cursor_error(intern, flags)              \
+    php_unqlite_kv_error(                                       \
+        zend_object_store_get_object((intern)->link TSRMLS_CC), \
+        flags TSRMLS_CC);
 
 ZEND_UNQLITE_METHOD(KvCursor, __construct)
 {
@@ -594,7 +692,7 @@ ZEND_UNQLITE_METHOD(KvCursor, key)
 
     buf = (char *)emalloc(len + 1);
     if (!buf) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Allocate buffer");
+        php_error_out_of_memory();
         RETURN_FALSE;
     }
 
@@ -609,8 +707,7 @@ ZEND_UNQLITE_METHOD(KvCursor, key)
     }
 
     /* fail */
-    php_unqlite_error(zend_object_store_get_object(intern->link TSRMLS_CC),
-                      E_WARNING TSRMLS_CC);
+    php_unqlite_kv_cursor_error(intern, E_WARNING);
 
     if (buf) {
         efree(buf);
@@ -637,7 +734,7 @@ ZEND_UNQLITE_METHOD(KvCursor, data)
 
     buf = (char *)emalloc(len + 1);
     if (!buf) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Allocate buffer");
+        php_error_out_of_memory();
         RETURN_FALSE;
     }
 
@@ -652,8 +749,7 @@ ZEND_UNQLITE_METHOD(KvCursor, data)
     }
 
     /* fail */
-    php_unqlite_error(zend_object_store_get_object(intern->link TSRMLS_CC),
-                      E_WARNING TSRMLS_CC);
+    php_unqlite_kv_cursor_error(intern, E_WARNING);
 
     if (buf) {
         efree(buf);
@@ -669,11 +765,15 @@ static zend_function_entry php_unqlite_kv_methods[] = {
     ZEND_UNQLITE_ME(Kv, __construct, arginfo_unqlite_kv___construct,
                     ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     ZEND_UNQLITE_ME(Kv, close, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(Kv, store, arginfo_unqlite_kv_key_val, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(Kv, append, arginfo_unqlite_kv_key_val, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(Kv, fetch, arginfo_unqlite_kv_key, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(Kv, delete, arginfo_unqlite_kv_key, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(Kv, cursor, arginfo_unqlite_kv_cursor, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, store, arginfo_unqlite_key_val, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, append, arginfo_unqlite_key_val, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, fetch, arginfo_unqlite_key, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, delete, arginfo_unqlite_key, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, cursor, arginfo_unqlite_option, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, config, arginfo_unqlite_option, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, begin, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, commit, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(Kv, rollback, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
     ZEND_FE_END
 };
 
@@ -782,8 +882,7 @@ static zend_function_entry php_unqlite_kv_cursor_methods[] = {
     ZEND_UNQLITE_ME(KvCursor, last, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
     ZEND_UNQLITE_ME(KvCursor, next, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
     ZEND_UNQLITE_ME(KvCursor, prev, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
-    ZEND_UNQLITE_ME(KvCursor, seek,
-                    arginfo_unqlite_kv_cursor_seek, ZEND_ACC_PUBLIC)
+    ZEND_UNQLITE_ME(KvCursor, seek, arginfo_unqlite_key_option, ZEND_ACC_PUBLIC)
     ZEND_UNQLITE_ME(KvCursor, exists, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
     ZEND_UNQLITE_ME(KvCursor, delete, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
     ZEND_UNQLITE_ME(KvCursor, key, arginfo_unqlite_none, ZEND_ACC_PUBLIC)
@@ -915,6 +1014,9 @@ ZEND_MINIT_FUNCTION(unqlite)
 
     php_unqlite_kv_class_register(TSRMLS_C);
     php_unqlite_kv_cursor_class_register(TSRMLS_C);
+
+    UNQLITE_LONG_CONSTANT("CONFIG_DISABLE_AUTO_COMMIT",
+                          UNQLITE_CONFIG_DISABLE_AUTO_COMMIT);
 
     UNQLITE_LONG_CONSTANT("OPEN_READONLY", UNQLITE_OPEN_READONLY);
     UNQLITE_LONG_CONSTANT("OPEN_READWRITE", UNQLITE_OPEN_READWRITE);
