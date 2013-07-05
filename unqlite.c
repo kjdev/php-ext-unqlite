@@ -837,21 +837,6 @@ php_unqlite_kv_new(zend_class_entry *ce TSRMLS_DC)
     return php_unqlite_kv_new_ex(ce, NULL TSRMLS_CC);
 }
 
-static inline zend_object_value
-php_unqlite_kv_clone(zval *this_ptr TSRMLS_DC)
-{
-    php_unqlite_kv_t *new_obj = NULL;
-    php_unqlite_kv_t *old_obj =
-        (php_unqlite_kv_t *)zend_object_store_get_object(this_ptr TSRMLS_CC);
-    zend_object_value new_ov = php_unqlite_kv_new_ex(old_obj->std.ce,
-                                                     &new_obj TSRMLS_CC);
-
-    zend_objects_clone_members(&new_obj->std, new_ov, &old_obj->std,
-                               Z_OBJ_HANDLE_P(this_ptr) TSRMLS_CC);
-
-    return new_ov;
-}
-
 static inline int
 php_unqlite_kv_class_register(TSRMLS_D)
 {
@@ -869,7 +854,7 @@ php_unqlite_kv_class_register(TSRMLS_D)
     memcpy(&php_unqlite_kv_handlers, zend_get_std_object_handlers(),
            sizeof(zend_object_handlers));
 
-    php_unqlite_kv_handlers.clone_obj = php_unqlite_kv_clone;
+    php_unqlite_kv_handlers.clone_obj = NULL;
 
     return SUCCESS;
 }
@@ -954,26 +939,6 @@ php_unqlite_kv_cursor_new(zend_class_entry *ce TSRMLS_DC)
     return php_unqlite_kv_cursor_new_ex(ce, NULL TSRMLS_CC);
 }
 
-static inline zend_object_value
-php_unqlite_kv_cursor_clone(zval *this_ptr TSRMLS_DC)
-{
-    php_unqlite_kv_cursor_t *new_obj = NULL;
-    php_unqlite_kv_cursor_t *old_obj =
-        (php_unqlite_kv_cursor_t *)zend_object_store_get_object(
-            this_ptr TSRMLS_CC);
-    zend_object_value new_ov = php_unqlite_kv_cursor_new_ex(old_obj->std.ce,
-                                                            &new_obj TSRMLS_CC);
-
-    zend_objects_clone_members(&new_obj->std, new_ov, &old_obj->std,
-                               Z_OBJ_HANDLE_P(this_ptr) TSRMLS_CC);
-
-    MAKE_STD_ZVAL(new_obj->link);
-    *new_obj->link = *old_obj->link;
-    zval_copy_ctor(new_obj->link);
-
-    return new_ov;
-}
-
 static inline int
 php_unqlite_kv_cursor_class_register(TSRMLS_D)
 {
@@ -992,7 +957,7 @@ php_unqlite_kv_cursor_class_register(TSRMLS_D)
     memcpy(&php_unqlite_kv_cursor_handlers,
            zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
-    php_unqlite_kv_cursor_handlers.clone_obj = php_unqlite_kv_cursor_clone;
+    php_unqlite_kv_cursor_handlers.clone_obj = NULL;
 
     return SUCCESS;
 }
