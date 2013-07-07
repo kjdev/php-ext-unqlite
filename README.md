@@ -1,5 +1,7 @@
 # UnQLite Extension for PHP
 
+[![Build Status](https://travis-ci.org/kjdev/php-ext-unqlite.png?branch=master)](https://travis-ci.org/kjdev/php-ext-unqlite)
+
 This extension allows UnQLite.
 
 Documentation for UnQLite can be found at [» http://unqlite.org/](http://unqlite.org/).
