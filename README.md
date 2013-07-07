@@ -463,3 +463,8 @@ unqlite.ini:
 ## TODO
 
 Document-Store.
+
+## Related
+
+* [api document](http://api.at-ninja.jp/php-ext-unqlite/)
+* [code coverage report](http://gcov.at-ninja.jp/php-ext-unqlite/)
