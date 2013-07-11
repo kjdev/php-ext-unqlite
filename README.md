@@ -55,18 +55,18 @@ unqlite.ini:
 * UnQLite\\Kvs::rollback — Rollback a write-transaction
 * UnQLite\\Kvs::cursor — Create a new Key/Value stotre cursor
 
-### UnQLite\\KvsCursor
+### UnQLite\\Kvs\\Cursor
 
-* UnQLite\\KvsCursor::\_\_construct — Create a new Key/Value stotre cursor
-* UnQLite\\KvsCursor::first — Advances the cursor to the first
-* UnQLite\\KvsCursor::last — Advances the cursor to the last
-* UnQLite\\KvsCursor::next — Advances the cursor to the next
-* UnQLite\\KvsCursor::prev — Advances the cursor to the prev
-* UnQLite\\KvsCursor::seek — Seek cursor to key
-* UnQLite\\KvsCursor::exists — Check whether cursor exists
-* UnQLite\\KvsCursor::remove — Delete the current cursor
-* UnQLite\\KvsCursor::key — Returns the current key
-* UnQLite\\KvsCursor::data — Returns the current value
+* UnQLite\\Kvs\\Cursor::\_\_construct — Create a new Key/Value stotre cursor
+* UnQLite\\Kvs\\Cursor::first — Advances the cursor to the first
+* UnQLite\\Kvs\\Cursor::last — Advances the cursor to the last
+* UnQLite\\Kvs\\Cursor::next — Advances the cursor to the next
+* UnQLite\\Kvs\\Cursor::prev — Advances the cursor to the prev
+* UnQLite\\Kvs\\Cursor::seek — Seek cursor to key
+* UnQLite\\Kvs\\Cursor::exists — Check whether cursor exists
+* UnQLite\\Kvs\\Cursor::remove — Delete the current cursor
+* UnQLite\\Kvs\\Cursor::key — Returns the current key
+* UnQLite\\Kvs\\Cursor::data — Returns the current value
 
 ### UnQLite\\Doc
 
@@ -112,7 +112,7 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new DB object.
+  Returns a new UnQLite\\DB object.
 
 ---
 
@@ -162,7 +162,7 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new Kvs object
+  Returns a new UnQLite\\Kvs object
 
 ---
 
@@ -182,7 +182,7 @@ unqlite.ini:
 
 **Return Values:**
 
-  Returns a new Doc object
+  Returns a new UnQLite\\Doc object
 
 ---
 
@@ -198,11 +198,11 @@ unqlite.ini:
 
   * _db_
 
-     DB class Object.
+     UnQLite\\DB class Object.
 
   **Return Values:**
 
-  Returns a new Kvs object
+  Returns a new UnQLite\\Kvs object
 
 ---
 
@@ -357,15 +357,15 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new cursor object.
+  Returns a new UnQLite\\Kvs\\Cursor object.
 
 ---
 
-* UnQLite\\KvsCursor::\_\_construct — Create a new Key/Value stotre cursor.
+* UnQLite\\Kvs\\Cursor::\_\_construct — Create a new Key/Value stotre cursor.
 
   **Description:**
 
-  public **UnQLite\\KvsCursor::\_\_construct** ( object _$kvs_ , [ long _$option_ ] )
+  public **UnQLite\\Kvs\\Cursor::\_\_construct** ( object _$kvs_ , [ long _$option_ ] )
 
   Create a new Key/Value stotre cursor.
 
@@ -373,7 +373,7 @@ unqlite.ini:
 
   * _kvs_
 
-     Kvs object.
+     UnQLite\\Kvs object.
 
   * _option_
 
@@ -384,15 +384,15 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new KvsCursor object.
+  Returns a new UnQLite\\Kvs\\Cursor object.
 
 ---
 
-* UnQLite\\KvsCursor::first — Advances the cursor to the first
+* UnQLite\\Kvs\\Cursor::first — Advances the cursor to the first
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::first** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::first** ( void )
 
   Advances the cursor to the first.
 
@@ -402,11 +402,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::last — Advances the cursor to the last
+* UnQLite\\Kvs\\Cursor::last — Advances the cursor to the last
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::last** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::last** ( void )
 
   Advances the cursor to the last.
 
@@ -416,11 +416,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::next — Advances the cursor to the next
+* UnQLite\\Kvs\\Cursor::next — Advances the cursor to the next
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::next** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::next** ( void )
 
   This function has no parameters.
 
@@ -430,11 +430,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::prev — Advances the cursor to the prev
+* UnQLite\\Kvs\\Cursor::prev — Advances the cursor to the prev
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::prev** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::prev** ( void )
 
   Advances the cursor to the prev.
 
@@ -444,11 +444,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::seek — Seek cursor to key
+* UnQLite\\Kvs\\Cursor::seek — Seek cursor to key
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::seek** ( string _$key_ , [ long _$option_ = UnQLite\\CURSOR\_MATCH\_EXACT ] )
+  public bool **UnQLite\\Kvs\\Cursor::seek** ( string _$key_ , [ long _$option_ = UnQLite\\CURSOR\_MATCH\_EXACT ] )
 
   Seek cursor to key.
 
@@ -472,11 +472,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::exists — Check whether cursor exists
+* UnQLite\\Kvs\\Cursor::exists — Check whether cursor exists
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::exists** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::exists** ( void )
 
   Check whether cursor exists.
 
@@ -486,15 +486,15 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::remove — Delete the current cursor
+* UnQLite\\Kvs\\Cursor::remove — Delete the current cursor
 
   **Description:**
 
-  public bool **UnQLite\\KvsCursor::remove** ( void )
+  public bool **UnQLite\\Kvs\\Cursor::remove** ( void )
 
   Delete the current cursor.
 
-  alias: UnQLite\\KvsCursor::delete
+  alias: UnQLite\\Kvs\\Cursor::delete
 
   **Return Values:**
 
@@ -502,11 +502,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::key — Returns the current key
+* UnQLite\\Kvs\\Cursor::key — Returns the current key
 
   **Description:**
 
-  public string **UnQLite\\KvsCursor::key** ( void )
+  public string **UnQLite\\Kvs\\Cursor::key** ( void )
 
   Returns the current key.
 
@@ -516,11 +516,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvsCursor::data — Returns the current value
+* UnQLite\\Kvs\\Cursor::data — Returns the current value
 
   **Description:**
 
-  public string **UnQLite\\KvsCursor::data** ( void )
+  public string **UnQLite\\Kvs\\Cursor::data** ( void )
 
   Returns the current value.
 
@@ -542,7 +542,7 @@ unqlite.ini:
 
   * _db_
 
-     DB class object.
+     UnQLite\\DB class object.
 
   * _collection_
 
@@ -550,7 +550,7 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new Doc object.
+  Returns a new UnQLite\\Doc object.
 
 ---
 

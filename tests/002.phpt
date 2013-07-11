@@ -119,7 +119,7 @@ store: b: true
 store: c: true
 store: d: true
 === Cursor 1 ===
-object(UnQLite\KvsCursor)#%d (0) {
+object(UnQLite\Kvs\Cursor)#%d (0) {
 }
 first: true
 exists: true
@@ -142,7 +142,7 @@ exists: false
 key: false
 data: NULL
 === Cursor 2 ===
-object(UnQLite\KvsCursor)#%d (0) {
+object(UnQLite\Kvs\Cursor)#%d (0) {
 }
 key: 'd'
 data: 'DDD'
@@ -153,7 +153,7 @@ data: 'BBB'
 key: 'a'
 data: 'AAA'
 === Cursor 3 ===
-object(UnQLite\KvsCursor)#%d (0) {
+object(UnQLite\Kvs\Cursor)#%d (0) {
 }
 last: true
 exists: true
@@ -176,7 +176,7 @@ exists: false
 key: false
 data: NULL
 === Cursor 4 ===
-object(UnQLite\KvsCursor)#%d (0) {
+object(UnQLite\Kvs\Cursor)#%d (0) {
 }
 seek: NON EXISTENT: false
 seek: b: true

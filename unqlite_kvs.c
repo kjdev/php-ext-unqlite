@@ -358,7 +358,7 @@ UNQLITE_ZEND_METHOD(Kvs, cursor)
     object_init_ex(return_value, php_unqlite_kvs_cursor_ce);
     cursor = zend_object_store_get_object(return_value TSRMLS_CC);
     if (!cursor) {
-        UNQLITE_EXCEPTION("The UnQLite\\KvsCursor object has not been "
+        UNQLITE_EXCEPTION("The UnQLite\\Kvs\\Cursor object has not been "
                           "correctly initialized by its constructor");
         return;
     }
@@ -835,7 +835,7 @@ php_unqlite_kvs_class_register(TSRMLS_D)
     php_unqlite_kvs_handlers.clone_obj = NULL;
 
     /* KvsCursor */
-    INIT_CLASS_ENTRY(kvs_cursor_ce, ZEND_NS_NAME(UNQLITE_NS, "KvsCursor"),
+    INIT_CLASS_ENTRY(kvs_cursor_ce, ZEND_NS_NAME(UNQLITE_NS, "Kvs\\Cursor"),
                      php_unqlite_kvs_cursor_methods);
 
     kvs_cursor_ce.create_object = php_unqlite_kvs_cursor_new;
