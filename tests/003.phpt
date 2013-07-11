@@ -1,5 +1,5 @@
 --TEST--
-transaction
+kvs transaction
 --SKIPIF--
 --FILE--
 <?php
@@ -11,54 +11,55 @@ if (!extension_loaded('unqlite')) {
 
 include_once dirname(__FILE__) . '/func.inc';
 
-$db = _db_init(__FILE__);
+$dbfile = _db_init(__FILE__);
 
-$kv = new Kv($db);
+$db = new DB($dbfile);
+$kvs = new Kvs($db);
 
-_kv_store($kv, "foo", "bar");
-_kv_store($kv, "hoge", "fuga");
+_kvs_store($kvs, "foo", "bar");
+_kvs_store($kvs, "hoge", "fuga");
 
-_kv_fetch($kv, "foo");
-_kv_fetch($kv, "hoge");
-_kv_fetch($kv, "test");
+_kvs_fetch($kvs, "foo");
+_kvs_fetch($kvs, "hoge");
+_kvs_fetch($kvs, "test");
 
 echo "=== commit ===\n";
-echo "commit: ", var_export($kv->commit(), true), "\n";
+echo "commit: ", var_export($kvs->commit(), true), "\n";
 
 echo "=== transaction : begin ===\n";
-echo "begin: ", var_export($kv->begin(), true), "\n";
-_kv_store($kv, "test", "message");
-_kv_fetch($kv, "test");
-_kv_append($kv, "foo", "message");
-_kv_fetch($kv, "foo");
+echo "begin: ", var_export($kvs->begin(), true), "\n";
+_kvs_store($kvs, "test", "message");
+_kvs_fetch($kvs, "test");
+_kvs_append($kvs, "foo", "message");
+_kvs_fetch($kvs, "foo");
 
 echo "=== transaction : rollback ===\n";
-echo "rollback: ", var_export($kv->rollback(), true), "\n";
-_kv_fetch($kv, "foo");
-_kv_fetch($kv, "hoge");
-_kv_fetch($kv, "test");
+echo "rollback: ", var_export($kvs->rollback(), true), "\n";
+_kvs_fetch($kvs, "foo");
+_kvs_fetch($kvs, "hoge");
+_kvs_fetch($kvs, "test");
 
 echo "=== transaction : begin ===\n";
-echo "begin: ", var_export($kv->begin(), true), "\n";
-_kv_store($kv, "test", "MESSAGE");
-_kv_fetch($kv, "test");
-_kv_append($kv, "foo", "MESSAGE");
-_kv_fetch($kv, "foo");
+echo "begin: ", var_export($kvs->begin(), true), "\n";
+_kvs_store($kvs, "test", "MESSAGE");
+_kvs_fetch($kvs, "test");
+_kvs_append($kvs, "foo", "MESSAGE");
+_kvs_fetch($kvs, "foo");
 
 echo "=== transaction : commit ===\n";
-echo "commit: ", var_export($kv->commit(), true), "\n";
-_kv_fetch($kv, "foo");
-_kv_fetch($kv, "hoge");
-_kv_fetch($kv, "test");
+echo "commit: ", var_export($kvs->commit(), true), "\n";
+_kvs_fetch($kvs, "foo");
+_kvs_fetch($kvs, "hoge");
+_kvs_fetch($kvs, "test");
 
-_db_release($db);
+_db_release($dbfile);
 ?>
 --EXPECTF--
 store: foo: true
 store: hoge: true
 fetch: foo: 'bar'
 fetch: hoge: 'fuga'
-fetch: test: false
+fetch: test: NULL
 === commit ===
 commit: true
 === transaction : begin ===
@@ -71,7 +72,7 @@ fetch: foo: 'barmessage'
 rollback: true
 fetch: foo: 'bar'
 fetch: hoge: 'fuga'
-fetch: test: false
+fetch: test: NULL
 === transaction : begin ===
 begin: true
 store: test: true

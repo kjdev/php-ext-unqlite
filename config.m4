@@ -21,18 +21,56 @@ if test $PHP_MAJOR_VERSION -lt 5; then
     AC_MSG_ERROR([need at least PHP 5 or newer])
 fi
 
-PHP_ARG_ENABLE(unqliite, whether to enable unqlite support,
+dnl UnQLite Extension
+PHP_ARG_ENABLE(unqlite, whether to enable unqlite support,
 [  --enable-unqlite      Enable unqlite support])
 
 if test "$PHP_UNQLITE" != "no"; then
-  PHP_NEW_EXTENSION(unqlite, unqlite.c unqlite/unqlite.c, $ext_shared)
+    dnl Checks for header files.
+    AC_CHECK_HEADERS([locale.h])
 
-  ifdef([PHP_INSTALL_HEADERS],
-  [
-    PHP_INSTALL_HEADERS([ext/unqlite/], [php_unqlite.h])
-  ], [
-    PHP_ADD_MAKEFILE_FRAGMENT
-  ])
+    dnl Checks for typedefs, structures, and compiler characteristics.
+    AC_TYPE_INT32_T
+    AC_TYPE_LONG_LONG_INT
+
+    AC_C_INLINE
+    case $ac_cv_c_inline in
+        yes) json_inline=inline;;
+        no) json_inline=;;
+        *) json_inline=$ac_cv_c_inline;;
+    esac
+    AC_DEFINE_UNQUOTED(PHP_JSON_INLINE,$json_inline, [ ])
+
+    dnl Checks for library functions.
+    AC_CHECK_FUNCS([strtoll localeconv])
+
+    case "$ac_cv_type_long_long_int$ac_cv_func_strtoll" in
+        yesyes) json_have_long_long=1;;
+        *) json_have_long_long=0;;
+    esac
+    AC_DEFINE_UNQUOTED(PHP_HAVE_JSON_LONG_LONG,$json_have_long_long, [ ])
+
+    case "$ac_cv_header_locale_h$ac_cv_func_localeconv" in
+        yesyes) json_have_localeconv=1;;
+        *) json_have_localeconv=0;;
+    esac
+    AC_DEFINE_UNQUOTED(PHP_HAVE_JSON_LOCALECONV,$json_have_localeconv, [ ])
+
+    dnl Source: jansson
+    JANSSON_SOURCES="jansson/dump.c jansson/hashtable.c jansson/memory.c jansson/strbuffer.c jansson/utf.c jansson/error.c jansson/load.c jansson/pack_unpack.c jansson/strconv.c jansson/value.c"
+
+    dnl Source: UnQLite
+    UNQLITE_SOURCES="unqlite/unqlite.c"
+
+    dnl PHP Extension
+    PHP_NEW_EXTENSION(unqlite, unqlite.c unqlite_db.c unqlite_kvs.c unqlite_doc.c unqlite_json.c unqlite_exception.c $UNQLITE_SOURCES $JANSSON_SOURCES, $ext_shared)
+
+    ifdef([PHP_INSTALL_HEADERS],
+    [
+        PHP_INSTALL_HEADERS([ext/unqlite/], [php_unqlite.h])
+    ], [
+        PHP_ADD_MAKEFILE_FRAGMENT
+    ])
 fi
 
 dnl coverage

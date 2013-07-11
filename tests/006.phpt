@@ -1,5 +1,5 @@
 --TEST--
-kv config
+db config
 --SKIPIF--
 --FILE--
 <?php
@@ -11,16 +11,16 @@ if (!extension_loaded('unqlite')) {
 
 include_once dirname(__FILE__) . '/func.inc';
 
-$db = _db_init(__FILE__);
+$dbfile = _db_init(__FILE__);
 
-$kv = new Kv($db);
-var_dump($kv->config(CONFIG_DISABLE_AUTO_COMMIT));
-var_dump($kv->config(12345));
+$db = new DB($dbfile);
+var_dump($db->config(CONFIG_DISABLE_AUTO_COMMIT));
+var_dump($db->config(12345));
 
-_db_release($db);
+_db_release($dbfile);
 ?>
 --EXPECTF--
 bool(true)
 
-Warning: UnQLite\Kv::config(): unknown config option in %s on line %d
+Warning: UnQLite\DB::config(): unknown config option in %s on line %d
 bool(false)

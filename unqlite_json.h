@@ -21,43 +21,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef PHP_UNQLITE_H
-#define PHP_UNQLITE_H
+#ifndef UNQLITE_JSON_H
+#define UNQLITE_JSON_H
 
-#include "unqlite/unqlite.h"
+#include "php_unqlite.h"
 
-#define UNQLITE_EXT_VERSION "0.1.0"
+PHP_UNQLITE_API char * php_unqlite_to_json(zval *data TSRMLS_DC);
+PHP_UNQLITE_API void php_unqlite_json_to_zval(zval *return_value,
+                                              char *data, size_t len TSRMLS_DC);
 
-#define UNQLITE_NS "UnQLite"
-#define UNQLITE_ZEND_METHOD(classname, name) \
-    ZEND_METHOD(UnQLite_##classname, name)
-#define UNQLITE_ZEND_ME(classname, name, arg_info, flags) \
-    ZEND_ME(UnQLite_##classname, name, arg_info, flags)
-#define UNQLITE_ZEND_MALIAS(classname, name, alias, arg_info, flags) \
-    ZEND_MALIAS(UnQLite_##classname, name, alias, arg_info, flags)
-
-extern zend_module_entry unqlite_module_entry;
-#define phpext_unqlite_ptr &unqlite_module_entry
-
-#ifdef PHP_WIN32
-#    define PHP_UNQLITE_API __declspec(dllexport)
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#    define PHP_UNQLITE_API __attribute__ ((visibility("default")))
-#else
-#    define PHP_UNQLITE_API
-#endif
-
-#ifdef ZTS
-#    include "TSRM.h"
-#endif
-
-ZEND_BEGIN_MODULE_GLOBALS(unqlite)
-ZEND_END_MODULE_GLOBALS(unqlite)
-
-#ifdef ZTS
-#    define UNQLITE_G(v) TSRMG(unqlite_globals_id, zend_unqlite_globals *, v)
-#else
-#    define UNQLITE_G(v) (unqlite_globals.v)
-#endif
-
-#endif  /* PHP_UNQLITE_H */
+#endif  /* UNQLITE_JSON_H */

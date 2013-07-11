@@ -1,5 +1,5 @@
 --TEST--
-duplicate kv store
+kvs duplicate
 --SKIPIF--
 --FILE--
 <?php
@@ -11,21 +11,83 @@ if (!extension_loaded('unqlite')) {
 
 include_once dirname(__FILE__) . '/func.inc';
 
-$db = _db_init(__FILE__);
+$dbfile = _db_init(__FILE__);
 
-$kv1 = new Kv($db);
-$kv2 = new Kv($db);
+function test($dbfile, $method, $params = array()) {
+    $db1 = new DB($dbfile);
+    $db2 = new DB($dbfile);
 
-var_dump($kv1->store("foo", "bar"));
-var_dump($kv2->store("foo", "bar"));
+    $kvs1 = $db1->kvs();
+    $kvs2 = $db2->kvs();
 
-_db_release($db);
+    var_dump(call_user_func_array(array($kvs1, $method), $params));
+    var_dump(call_user_func_array(array($kvs2, $method), $params));
+
+    unset($kvs1);
+    unset($kvs2);
+    unset($db1);
+    unset($db2);
+}
+
+echo "=== store ===\n";
+test($dbfile, 'store', array("foo", "bar"));
+
+echo "=== append ===\n";
+test($dbfile, 'append', array("foo", "bar"));
+
+echo "=== fetch ===\n";
+test($dbfile, 'fetch', array("foo"));
+
+echo "=== delete ===\n";
+test($dbfile, 'delete', array("foo"));
+
+echo "=== begin ===\n";
+test($dbfile, 'begin');
+
+echo "=== rollback ===\n";
+test($dbfile, 'rollback');
+
+echo "=== commit ===\n";
+test($dbfile, 'commit');
+
+_db_release($dbfile);
 ?>
 --EXPECTF--
+=== store ===
 bool(true)
 
-Warning: UnQLite\Kv::store(): Another process or thread hold the requested lock
+Warning: UnQLite\Kvs::store(): Another process or thread hold the requested lock
 Another process or thread have a reserved lock on this database
 xOpen() method of the underlying KV engine 'hash' failed
  in %s on line %d
 bool(false)
+=== append ===
+bool(true)
+
+Warning: UnQLite\Kvs::append(): Another process or thread hold the requested lock
+Another process or thread have a reserved lock on this database
+ in %s on line %d
+bool(false)
+=== fetch ===
+string(3) "bar"
+string(3) "bar"
+=== delete ===
+bool(true)
+
+Warning: UnQLite\Kvs::delete(): Another process or thread hold the requested lock
+Another process or thread have a reserved lock on this database
+ in %s on line %d
+bool(false)
+=== begin ===
+bool(true)
+
+Warning: UnQLite\Kvs::begin(): Another process or thread hold the requested lock
+Another process or thread have a reserved lock on this database
+ in %s on line %d
+bool(false)
+=== rollback ===
+bool(true)
+bool(true)
+=== commit ===
+bool(true)
+bool(true)

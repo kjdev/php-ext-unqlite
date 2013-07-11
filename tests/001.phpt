@@ -1,5 +1,5 @@
 --TEST--
-simple
+kvs simple
 --SKIPIF--
 --FILE--
 <?php
@@ -11,38 +11,59 @@ if (!extension_loaded('unqlite')) {
 
 include_once dirname(__FILE__) . '/func.inc';
 
-$db = _db_init(__FILE__);
+$dbfile = _db_init(__FILE__);
 
-$kv = new Kv($db);
-var_dump($kv);
+$db = new DB($dbfile);
+var_dump($db);
 
-_kv_store($kv, "foo", "bar");
-_kv_fetch($kv, "foo");
-_kv_delete($kv, "foo");
-_kv_fetch($kv, "foo");
+$kvs = $db->kvs();
+var_dump($kvs);
 
-_kv_store($kv, "test", "123");
-_kv_fetch($kv, "test");
-_kv_append($kv, "test", "456");
-_kv_fetch($kv, "test");
+_kvs_store($kvs, "foo", "bar");
+_kvs_fetch($kvs, "foo");
+_kvs_delete($kvs, "foo");
+_kvs_fetch($kvs, "foo");
 
-$kv = new Kv("/path/to/unexisted/file");
-var_dump($kv);
-_kv_fetch($kv, "x");
+unset($kvs);
 
-_db_release($db);
+
+$kvs = new Kvs($db);
+var_dump($kvs);
+
+_kvs_store($kvs, "test", "123");
+_kvs_fetch($kvs, "test");
+_kvs_append($kvs, "test", "456");
+_kvs_fetch($kvs, "test");
+
+unset($kvs);
+unset($db);
+
+
+$db = new DB("/path/to/unexisted/file");
+var_dump($db);
+$kvs = $db->kvs();
+var_dump($kvs);
+_kvs_fetch($kvs, "x");
+
+_db_release($dbfile);
 ?>
 --EXPECTF--
-object(UnQLite\Kv)#%d (0) {
+object(UnQLite\DB)#%d (0) {
+}
+object(UnQLite\Kvs)#%d (0) {
 }
 store: foo: true
 fetch: foo: 'bar'
 delete: foo: true
-fetch: foo: false
+fetch: foo: NULL
+object(UnQLite\Kvs)#%d (0) {
+}
 store: test: true
 fetch: test: '123'
 append: test: true
 fetch: test: '123456'
-object(UnQLite\Kv)#%d (0) {
+object(UnQLite\DB)#%d (0) {
 }
-fetch: x: false
+object(UnQLite\Kvs)#%d (0) {
+}
+fetch: x: NULL

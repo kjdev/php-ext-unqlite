@@ -6,6 +6,17 @@ This extension allows UnQLite.
 
 Documentation for UnQLite can be found at [» http://unqlite.org/](http://unqlite.org/).
 
+
+## Dependencies
+
+An Embeddable NoSQL Database Engine.
+
+* [UnQLite](http://unqlite.org/)
+
+json processing is not using the jansson library.
+
+* [jansson](http://www.digip.org/jansson/)
+
 ## Build
 
     % phpize
@@ -24,40 +35,61 @@ unqlite.ini:
 
 **Namespace:** UnQLite
 
-### UnQLite\\Kv
+### UnQLite\\DB
 
-* UnQLite\\Kv::\_\_construct — Create database
-* UnQLite\\Kv::close — Close database
-* UnQLite\\Kv::store — Saves entry
-* UnQLite\\Kv::fetch — Fetch data specified by key
-* UnQLite\\Kv::append — Append entry data specified by key
-* UnQLite\\Kv::delete — Delete entry specified by key
-* UnQLite\\Kv::cursor — Create a new cursor
-* UnQLite\\Kv::config — Configure a database
-* UnQLite\\Kv::begin — Manually begin a write-transaction
-* UnQLite\\Kv::commit — Commit all changes to the database
-* UnQLite\\Kv::rollback — Rollback a write-transaction
+* UnQLite\\DB::\_\_construct — Create database
+* UnQLite\\DB::close — Close database
+* UnQLite\\DB::config — Configure a database
+* UnQLite\\DB::kvs — Create a new key/value store
+* UnQLite\\DB::doc — Create a new document store
 
-### UnQLite\\KvCursor
+### UnQLite\\Kvs
 
-* UnQLite\\KvCursor::\_\_construct — Create a new cursor
-* UnQLite\\KvCursor::first — Advances the cursor to the first
-* UnQLite\\KvCursor::last — Advances the cursor to the last
-* UnQLite\\KvCursor::next — Advances the cursor to the next
-* UnQLite\\KvCursor::prev — Advances the cursor to the prev
-* UnQLite\\KvCursor::seek — Seek cursor to key
-* UnQLite\\KvCursor::exists — Check whether cursor exists
-* UnQLite\\KvCursor::delete — Delete the current cursor
-* UnQLite\\KvCursor::key — Returns the current key
-* UnQLite\\KvCursor::data — Returns the current value
+* UnQLite\\Kvs::\_\_construct — Create a new Key/Value store
+* UnQLite\\Kvs::store — Saves entry
+* UnQLite\\Kvs::fetch — Fetch data specified by key
+* UnQLite\\Kvs::append — Append entry data specified by key
+* UnQLite\\Kvs::remove — Delete entry specified by key
+* UnQLite\\Kvs::begin — Manually begin a write-transaction
+* UnQLite\\Kvs::commit — Commit all changes to the database
+* UnQLite\\Kvs::rollback — Rollback a write-transaction
+* UnQLite\\Kvs::cursor — Create a new Key/Value stotre cursor
+
+### UnQLite\\KvsCursor
+
+* UnQLite\\KvsCursor::\_\_construct — Create a new Key/Value stotre cursor
+* UnQLite\\KvsCursor::first — Advances the cursor to the first
+* UnQLite\\KvsCursor::last — Advances the cursor to the last
+* UnQLite\\KvsCursor::next — Advances the cursor to the next
+* UnQLite\\KvsCursor::prev — Advances the cursor to the prev
+* UnQLite\\KvsCursor::seek — Seek cursor to key
+* UnQLite\\KvsCursor::exists — Check whether cursor exists
+* UnQLite\\KvsCursor::remove — Delete the current cursor
+* UnQLite\\KvsCursor::key — Returns the current key
+* UnQLite\\KvsCursor::data — Returns the current value
+
+### UnQLite\\Doc
+
+* UnQLite\\Doc::\_\_construct — Create a new document store
+* UnQLite\\Doc::eval — Evaluate a string as Jx9 code
+* UnQLite\\Doc::drop — remove a collection
+* UnQLite\\Doc::count — total number of inserted records
+* UnQLite\\Doc::store — Store one or more JSON values
+* UnQLite\\Doc::fetch — Fetch the current record
+* UnQLite\\Doc::fetch_all — Retrieve all records
+* UnQLite\\Doc::fetch_id — Fetch a record via its unique ID
+* UnQLite\\Doc::remove — remove a stored record
+* UnQLite\\Doc::begin — Manually begin a write-transaction
+* UnQLite\\Doc::commit — Commit all changes to the database
+* UnQLite\\Doc::rollback — Rollback a write-transaction
 
 ## Class Methods
 
-* UnQLite\\Kv::\_\_construct — Create database
+* UnQLite\\DB::\_\_construct — Create database
 
   **Description:**
 
-  public **UnQLite\\Kv::\_\_construct** ( string _$filename_ [ , long _$mode_ = UnQLite\\OPEN\_CREATE ] )
+  public **UnQLite\\DB::\_\_construct** ( string _$filename_ [ , long _$mode_ = UnQLite\\OPEN\_CREATE ] )
 
   Open UnQLite database.
 
@@ -80,15 +112,15 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new database object.
+  Returns a new DB object.
 
 ---
 
-* UnQLite\\Kv::close — Close database
+* UnQLite\\DB::close — Close database
 
   **Description:**
 
-  public **UnQLite\\Kv::close** ( void )
+  public **UnQLite\\DB::close** ( void )
 
   Close database.
 
@@ -98,11 +130,87 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::store — Saves entry
+* UnQLite\\DB::config — Configure a database
 
   **Description:**
 
-  public bool **UnQLite\\Kv::store** ( string _$key_ , string _$value_ )
+  public bool **UnQLite\\DB::config** ( long _$option_ )
+
+  Configure a database.
+
+  **Pameters:**
+
+  * _option_
+
+     options.
+
+     * UnQLite\\CONFIG\_DISABLE\_AUTO\_COMMIT
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\DB::kvs — Create a new key/value store
+
+  **Description:**
+
+  public object **UnQLite\\DB::kvs** ( void )
+
+  Create a new key/value store.
+
+  **Return Values:**
+
+  Returns a new Kvs object
+
+---
+
+* UnQLite\\DB::doc — Create a new document store
+
+  **Description:**
+
+  public object **UnQLite\\DB::doc** ( string _$collection_ )
+
+  Create a new document store.
+
+  **Pameters:**
+
+  * _collection_
+
+     collection name.
+
+**Return Values:**
+
+  Returns a new Doc object
+
+---
+
+* UnQLite\\Kvs::\_\_construct — Create a new Key/Value store
+
+  **Description:**
+
+  public **UnQLite\\Kvs::\_\_construct** ( object _$db_ )
+
+  Create a new Key/Value store.
+
+  **Pameters:**
+
+  * _db_
+
+     DB class Object.
+
+  **Return Values:**
+
+  Returns a new Kvs object
+
+---
+
+* UnQLite\\Kvs::store — Saves entry
+
+  **Description:**
+
+  public bool **UnQLite\\Kvs::store** ( string _$key_ , string _$value_ )
 
   Saves entry.
 
@@ -122,31 +230,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::fetch — Fetch data specified by key
+* UnQLite\\Kvs::append — Append entry data specified by key
 
   **Description:**
 
-  public string **UnQLite\\Kv::fetch** ( string _$key_ )
-
-  Fetch data specified by key.
-
-  **Pameters:**
-
-  * _key_
-
-     The key of the entry to be inserted.
-
-  **Return Values:**
-
-  Returns the associated string if the key/data pair is found, FALSE otherwise.
-
----
-
-* UnQLite\\Kv::append — Append entry data specified by key
-
-  **Description:**
-
-  public bool **UnQLite\\Kv::append** ( string _$key_ , string _$value_ )
+  public bool **UnQLite\\Kvs::append** ( string _$key_ , string _$value_ )
 
   Append entry data specified by key.
 
@@ -166,13 +254,35 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::delete — Delete entry specified by key
+* UnQLite\\Kvs::fetch — Fetch data specified by key
 
   **Description:**
 
-  public bool **UnQLite\\Kv::delete** ( string _$key_ )
+  public string **UnQLite\\Kvs::fetch** ( string _$key_ )
+
+  Fetch data specified by key.
+
+  **Pameters:**
+
+  * _key_
+
+     The key of the entry to be inserted.
+
+  **Return Values:**
+
+  Returns the associated string if the key/data pair is found, FALSE otherwise.
+
+---
+
+* UnQLite\\Kvs::remove — Delete entry specified by key
+
+  **Description:**
+
+  public bool **UnQLite\\Kvs::remove** ( string _$key_ )
 
   Delete entry specified by key.
+
+  alias: UnQLite\\Kvs::delete
 
   **Pameters:**
 
@@ -186,33 +296,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::config — Configure a database
+* UnQLite\\Kvs::begin — Manually begin a write-transaction
 
   **Description:**
 
-  public bool **UnQLite\\Kv::config** ( long _$option_ )
-
-  Configure a database.
-
-  **Pameters:**
-
-  * _option_
-
-     options.
-
-     * UnQLite\\CONFIG\_DISABLE\_AUTO\_COMMIT
-
-  **Return Values:**
-
-  Returns TRUE on success or FALSE on failure.
-
----
-
-* UnQLite\\Kv::begin — Manually begin a write-transaction
-
-  **Description:**
-
-  public bool **UnQLite\\Kv::begin** ( void )
+  public bool **UnQLite\\Kvs::begin** ( void )
 
   Manually begin a write-transaction.
 
@@ -222,11 +310,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::commit — Commit all changes to the database
+* UnQLite\\Kvs::commit — Commit all changes to the database
 
   **Description:**
 
-  public bool **UnQLite\\Kv::commit** ( void )
+  public bool **UnQLite\\Kvs::commit** ( void )
 
   Commit all changes to the database.
 
@@ -236,11 +324,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::rollback — Rollback a write-transaction
+* UnQLite\\Kvs::rollback — Rollback a write-transaction
 
   **Description:**
 
-  public bool **UnQLite\\Kv::rollback** ( void )
+  public bool **UnQLite\\Kvs::rollback** ( void )
 
   Rollback a write-transaction.
 
@@ -250,13 +338,13 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\Kv::cursor — Create a new cursor
+* UnQLite\\Kvs::cursor — Create a new Key/Value stotre cursor
 
   **Description:**
 
-  public object **UnQLite\\Kv::cursor** ( [ long _$option_ = NULL ] )
+  public object **UnQLite\\Kvs::cursor** ( [ long _$option_ = NULL ] )
 
-  Create a new cursor.
+  Create a new Key/Value stotre cursor.
 
   **Pameters:**
 
@@ -273,19 +361,19 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::\_\_construct — Create a new cursor
+* UnQLite\\KvsCursor::\_\_construct — Create a new Key/Value stotre cursor.
 
   **Description:**
 
-  public **UnQLite\\KvCursor::\_\_construct** ( object _$db_ , [ long _$option_ ] )
+  public **UnQLite\\KvsCursor::\_\_construct** ( object _$kvs_ , [ long _$option_ ] )
 
-  Create a new cursor.
+  Create a new Key/Value stotre cursor.
 
   **Pameters:**
 
-  * _db_
+  * _kvs_
 
-     database object.
+     Kvs object.
 
   * _option_
 
@@ -296,15 +384,15 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns a new cursor object.
+  Returns a new KvsCursor object.
 
 ---
 
-* UnQLite\\KvCursor::first — Advances the cursor to the first
+* UnQLite\\KvsCursor::first — Advances the cursor to the first
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::first** ( void )
+  public bool **UnQLite\\KvsCursor::first** ( void )
 
   Advances the cursor to the first.
 
@@ -314,11 +402,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::last — Advances the cursor to the last
+* UnQLite\\KvsCursor::last — Advances the cursor to the last
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::last** ( void )
+  public bool **UnQLite\\KvsCursor::last** ( void )
 
   Advances the cursor to the last.
 
@@ -328,11 +416,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::next — Advances the cursor to the next
+* UnQLite\\KvsCursor::next — Advances the cursor to the next
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::next** ( void )
+  public bool **UnQLite\\KvsCursor::next** ( void )
 
   This function has no parameters.
 
@@ -342,11 +430,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::prev — Advances the cursor to the prev
+* UnQLite\\KvsCursor::prev — Advances the cursor to the prev
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::prev** ( void )
+  public bool **UnQLite\\KvsCursor::prev** ( void )
 
   Advances the cursor to the prev.
 
@@ -356,11 +444,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::seek — Seek cursor to key
+* UnQLite\\KvsCursor::seek — Seek cursor to key
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::seek** ( string _$key_ , [ long _$option_ = UnQLite\\CURSOR\_MATCH\_EXACT ] )
+  public bool **UnQLite\\KvsCursor::seek** ( string _$key_ , [ long _$option_ = UnQLite\\CURSOR\_MATCH\_EXACT ] )
 
   Seek cursor to key.
 
@@ -384,11 +472,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::exists — Check whether cursor exists
+* UnQLite\\KvsCursor::exists — Check whether cursor exists
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::exists** ( void )
+  public bool **UnQLite\\KvsCursor::exists** ( void )
 
   Check whether cursor exists.
 
@@ -398,13 +486,15 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::delete — Delete the current cursor
+* UnQLite\\KvsCursor::remove — Delete the current cursor
 
   **Description:**
 
-  public bool **UnQLite\\KvCursor::delete** ( void )
+  public bool **UnQLite\\KvsCursor::remove** ( void )
 
   Delete the current cursor.
+
+  alias: UnQLite\\KvsCursor::delete
 
   **Return Values:**
 
@@ -412,11 +502,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::key — Returns the current key
+* UnQLite\\KvsCursor::key — Returns the current key
 
   **Description:**
 
-  public string **UnQLite\\KvCursor::key** ( void )
+  public string **UnQLite\\KvsCursor::key** ( void )
 
   Returns the current key.
 
@@ -426,11 +516,11 @@ unqlite.ini:
 
 ---
 
-* UnQLite\\KvCursor::data — Returns the current value
+* UnQLite\\KvsCursor::data — Returns the current value
 
   **Description:**
 
-  public string **UnQLite\\KvCursor::data** ( void )
+  public string **UnQLite\\KvsCursor::data** ( void )
 
   Returns the current value.
 
@@ -438,33 +528,322 @@ unqlite.ini:
 
   The current cursor's key as a string.
 
+---
+
+* UnQLite\\Doc::\_\_construct — Create a new document store
+
+  **Description:**
+
+  public **UnQLite\\Doc::\_\_construct** ( object _$db_ , string _$collection_ )
+
+  Create a new document store.
+
+  **Pameters:**
+
+  * _db_
+
+     DB class object.
+
+  * _collection_
+
+     collection name.
+
+  **Return Values:**
+
+  Returns a new Doc object.
+
+---
+
+* UnQLite\\Doc::eval — Evaluate a string as Jx9 code
+
+  **Description:**
+
+  public string **UnQLite\\Doc::eval** ( string _$code_ )
+
+  Evaluate a string as Jx9 code.
+
+  **Pameters:**
+
+  * _code_
+
+     Jx9 code.
+
+  **Return Values:**
+
+  Returns execution result on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::drop — remove a collection
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::drop** ( void )
+
+  remove a collection.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::count — total number of inserted records
+
+  **Description:**
+
+  public int **UnQLite\\Doc::drop** ( void )
+
+  total number of inserted records.
+
+  **Return Values:**
+
+  total nuber of records.
+
+---
+
+* UnQLite\\Doc::store — Store one or more JSON values
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::store** ( array|object _$data_ )
+
+  Store one or more JSON values.
+
+  **Pameters:**
+
+  * _data_
+
+     JSON values.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::fetch — Fetch the current record
+
+  **Description:**
+
+  public mixed **UnQLite\\Doc::fetch** ( [ int _$offset_ = 0 ] )
+
+  Fetch the current record.
+
+  **Pameters:**
+
+  * _offset_
+
+     cursor offset.
+
+  **Return Values:**
+
+  record value.
+
+---
+
+* UnQLite\\Doc::fetch_all — Retrieve all records
+
+  **Description:**
+
+  public array **UnQLite\\Doc::fetch_all** ( void )
+
+  Retrieve all records.
+
+  alias: UnQLite\\Doc::fetchAll
+
+  **Return Values:**
+
+  JSON array holding the filtered records.
+
+---
+
+* UnQLite\\Doc::fetch_id — Fetch a record via its unique ID
+
+  **Description:**
+
+  public mixed **UnQLite\\Doc::fetch_id** ( int _$id_ )
+
+  Fetch a record via its unique ID.
+
+  alias: UnQLite\\Doc::fetchId
+
+  **Pameters:**
+
+  * _id_
+
+     id number.
+
+  **Return Values:**
+
+  record value.
+
+---
+
+* UnQLite\\Doc::remove — remove a stored record
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::remove** ( int _$id_ )
+
+  remove a stored record.
+
+  **Pameters:**
+
+  * _id_
+
+     id number.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::begin — Manually begin a write-transaction
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::begin** ( void )
+
+  Manually begin a write-transaction.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::commit — Commit all changes to the database
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::commit** ( void )
+
+  Commit all changes to the database.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
+
+* UnQLite\\Doc::rollback — Rollback a write-transaction
+
+  **Description:**
+
+  public bool **UnQLite\\Doc::rollback** ( void )
+
+  Rollback a write-transaction.
+
+  **Return Values:**
+
+  Returns TRUE on success or FALSE on failure.
+
+---
 
 ## Examples
 
+### Key/Value store
+
     namespace UnQLite;
 
-    $db = dirname(__FILE__) . '/test.db';
+    $db = new DB(dirname(__FILE__) . '/kvs.db');
+    $kvs = $db->kvs(); // or $kvs = new Kvs($db);
+    $kvs->store("foo", "bar");
+    $kvs->fetch("foo"); // => bar
 
-    $kv = new Kv($db);
-    $kv->store("foo", "bar");
-    $kv->fetch("foo"); // => bar
+    $kvs->remove("foo"); // or $kvs->delete("foo")
 
-    $kv->delete("foo");
+    $kvs->store("a", "A");
+    $kvs->store("b", "B");
+    $kvs->store("c", "C");
 
-    $kv->store("a", "A");
-    $kv->store("b", "B");
-    $kv->store("c", "C");
-
-    $cursor = $kv->cursor();
+    $cursor = $kvs->cursor();
     $cursor->first();
     do {
         $cursor->key();  // => a .. b  .. c
         $cursor->data(); // => A .. B  .. C
     } while ($cursor->next());
 
-## TODO
+### Document store
 
-Document-Store.
+    namespace UnQLite;
+
+    $db = new DB(dirname(__FILE__) . '/doc.db');
+    $doc = $db->doc('test'); // or $doc = new Doc($db, 'test');
+    $doc->store(array("a" => "A"));
+    $doc->store(array("b" => "B"));
+    $doc->store(array("c" => "C"));
+    $doc->fetch();
+    // => array (
+    //      [a] => A
+    //      [__id] => 0
+    //    )
+
+    $doc->fetch_all(); // or $doc ->fetchAll()
+    // =>
+    // => array (
+    //      [0] => array (
+    //              [a] => A
+    //              [__id] => 0
+    //             )
+    //      [1] => array (
+    //              [__id] => 1
+    //              [b] => B
+    //             )
+    //      [2] => array (
+    //              [c] => C
+    //              [__id] => 2
+    //             )
+    //    )
+
+    $doc->fetch_id(1); // or $doc ->fetchId(1)
+    // => bar
+    // => array (
+    //      [__id] => 1
+    //      [b] => B
+    //    )
+
+    $doc->remove(1); // or $doc->delete(1)
+
+    $doc->fetch_all(); // or $doc ->fetchAll()
+    // => array (
+    //      [0] => array (
+    //              [a] => A
+    //              [__id] => 0
+    //             )
+    //      [1] => array (
+    //              [c] => C
+    //              [__id] => 2
+    //             )
+    //    )
+
+### Transaction
+
+    namespace UnQLite;
+
+    $db = new DB(dirname(__FILE__) . '/kvs.db');
+    $kvs = $db->kvs(); // begin is performed implicitly
+    $kvs->store("foo", "bar");
+
+    $kvs->fetch("foo");  // => bar
+    $kvs->fetch("test"); // => NULL
+
+    $kvs->commit(); // transaction commit (write here)
+
+    $kvs->begin(); // transaction start
+
+    $kvs->store("test", "message");
+    $kvs->remove("foo");
+
+    $kvs->fetch("foo");  // => NULL
+    $kvs->fetch("test"); // => message
+
+    $kvs->rollback(); // transaction rollback
+
+    $kvs->fetch("foo");  // => bar
+    $kvs->fetch("test"); // => NULL
 
 ## Related
 

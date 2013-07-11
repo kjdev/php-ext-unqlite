@@ -21,43 +21,23 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef PHP_UNQLITE_H
-#define PHP_UNQLITE_H
+#ifndef UNQLITE_EXCEPTION_H
+#define UNQLITE_EXCEPTION_H
 
-#include "unqlite/unqlite.h"
+#include "php_unqlite.h"
 
-#define UNQLITE_EXT_VERSION "0.1.0"
+#include "zend_exceptions.h"
 
-#define UNQLITE_NS "UnQLite"
-#define UNQLITE_ZEND_METHOD(classname, name) \
-    ZEND_METHOD(UnQLite_##classname, name)
-#define UNQLITE_ZEND_ME(classname, name, arg_info, flags) \
-    ZEND_ME(UnQLite_##classname, name, arg_info, flags)
-#define UNQLITE_ZEND_MALIAS(classname, name, alias, arg_info, flags) \
-    ZEND_MALIAS(UnQLite_##classname, name, alias, arg_info, flags)
+extern PHP_UNQLITE_API zend_class_entry *php_unqlite_exception_ce;
 
-extern zend_module_entry unqlite_module_entry;
-#define phpext_unqlite_ptr &unqlite_module_entry
+typedef struct {
+    zend_object std;
+    int init;
+} php_unqlite_exception_t;
 
-#ifdef PHP_WIN32
-#    define PHP_UNQLITE_API __declspec(dllexport)
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#    define PHP_UNQLITE_API __attribute__ ((visibility("default")))
-#else
-#    define PHP_UNQLITE_API
-#endif
+PHP_UNQLITE_API int php_unqlite_exception_class_register(TSRMLS_D);
 
-#ifdef ZTS
-#    include "TSRM.h"
-#endif
+#define UNQLITE_EXCEPTION(...) \
+    zend_throw_exception_ex(php_unqlite_exception_ce, 0 TSRMLS_CC, __VA_ARGS__)
 
-ZEND_BEGIN_MODULE_GLOBALS(unqlite)
-ZEND_END_MODULE_GLOBALS(unqlite)
-
-#ifdef ZTS
-#    define UNQLITE_G(v) TSRMG(unqlite_globals_id, zend_unqlite_globals *, v)
-#else
-#    define UNQLITE_G(v) (unqlite_globals.v)
-#endif
-
-#endif  /* PHP_UNQLITE_H */
+#endif  /* UNQLITE_EXCEPTION_H */

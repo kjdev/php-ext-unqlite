@@ -1,5 +1,5 @@
 --TEST--
-kv open/close
+db open/close
 --SKIPIF--
 --FILE--
 <?php
@@ -11,20 +11,40 @@ if (!extension_loaded('unqlite')) {
 
 include_once dirname(__FILE__) . '/func.inc';
 
-$db = _db_init(__FILE__);
+$dbfile = _db_init(__FILE__);
 
-$kv = new Kv($db);
-var_dump($kv);
-$kv->close();
+$db = new DB($dbfile);
+var_dump($db);
+$db->close();
+unset($db);
 
-$kv = new Kv(':mem:');
-var_dump($kv);
-unset($kv);
+$db = new DB(':mem:');
+var_dump($db);
+unset($db);
 
-_db_release($db);
+//option
+$db = new DB(':mem:', -1);
+var_dump($db);
+unset($db);
+
+//error
+try {
+    $db = new DB(null);
+    var_dump($db);
+    unset($db);
+} catch (\Exception $e) {
+    echo get_class($e), "\n";
+    echo $e->getMessage(), "\n";
+}
+
+_db_release($dbfile);
 ?>
 --EXPECTF--
-object(UnQLite\Kv)#%d (0) {
+object(UnQLite\DB)#%d (0) {
 }
-object(UnQLite\Kv)#%d (0) {
+object(UnQLite\DB)#%d (0) {
 }
+object(UnQLite\DB)#%d (0) {
+}
+UnQLite\Exception
+unable to expand filepath:

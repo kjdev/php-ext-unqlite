@@ -13,21 +13,21 @@ function _db_release($db) {
     }
 }
 
-/* kv */
-function _kv_store($kv, $key, $val) {
-    echo "store: $key: ", var_export($kv->store($key, $val), true), "\n";
+/* kvs */
+function _kvs_store($kvs, $key, $val) {
+    echo "store: $key: ", var_export($kvs->store($key, $val), true), "\n";
 }
-function _kv_append($kv, $key, $val) {
-    echo "append: $key: ", var_export($kv->append($key, $val), true), "\n";
+function _kvs_append($kvs, $key, $val) {
+    echo "append: $key: ", var_export($kvs->append($key, $val), true), "\n";
 }
-function _kv_fetch($kv, $key) {
-    echo "fetch: $key: ", var_export($kv->fetch($key), true), "\n";
+function _kvs_fetch($kvs, $key) {
+    echo "fetch: $key: ", var_export($kvs->fetch($key), true), "\n";
 }
-function _kv_delete($kv, $key) {
-    echo "delete: $key: ", var_export($kv->delete($key), true), "\n";
+function _kvs_delete($kvs, $key) {
+    echo "delete: $key: ", var_export($kvs->delete($key), true), "\n";
 }
 
-/* cursor */
+/* kvs cursor */
 function _cursor_key($cur) {
     echo "key: ", var_export($cur->key(), true), "\n";
 }
@@ -54,4 +54,15 @@ function _cursor_delete($cur) {
 }
 function _cursor_seek($cur, $key) {
     echo "seek: $key: ", var_export($cur->seek($key), true), "\n";
+}
+
+/* doc */
+function _doc_store($doc, $data) {
+    echo "store: ", var_export($doc->store($data), true), "\n";
+}
+function _doc_fetch($doc, $offset = 0) {
+    echo "fetch: ", var_export($doc->fetch($offset), true), "\n";
+}
+function _doc_delete($doc, $id) {
+    echo "delete: ", var_export($doc->remove($id), true), "\n";
 }
