@@ -6,7 +6,7 @@ doc drop
 namespace UnQLite;
 
 if (!extension_loaded('unqlite')) {
-    dl('callmap.' . PHP_SHLIB_SUFFIX);
+    dl('unqlite.' . PHP_SHLIB_SUFFIX);
 }
 
 include_once dirname(__FILE__) . '/func.inc';

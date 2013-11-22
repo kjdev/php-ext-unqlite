@@ -6,7 +6,7 @@ phpinfo() displays unqlite info
 namespace UnQLite;
 
 if (!extension_loaded('unqlite')) {
-    dl('callmap.' . PHP_SHLIB_SUFFIX);
+    dl('unqlite.' . PHP_SHLIB_SUFFIX);
 }
 
 phpinfo();
