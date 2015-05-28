@@ -33,8 +33,6 @@
 #include "unqlite_kvs.h"
 #include "unqlite_exception.h"
 
-ZEND_EXTERN_MODULE_GLOBALS(unqlite)
-
 zend_class_entry *php_unqlite_kvs_ce;
 static zend_object_handlers php_unqlite_kvs_handlers;
 

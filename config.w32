@@ -1,0 +1,8 @@
+ARG_ENABLE("unqlite", "enable unqlite support", "no");
+
+if (PHP_UNQLITE != "no") {
+   EXTENSION("unqlite", "unqlite.c unqlite_db.c unqlite_kvs.c unqlite_doc.c unqlite_json.c unqlite_exception.c", PHP_UNQLITE_SHARED, "-I" + configure_module_dirname);
+   ADD_SOURCES(configure_module_dirname + "/unqlite", "unqlite.c", "unqlite");
+   ADD_SOURCES(configure_module_dirname + "/jansson", "dump.c hashtable.c memory.c strbuffer.c utf.c error.c load.c pack_unpack.c strconv.c value.c", "unqlite");
+   PHP_INSTALL_HEADERS("ext/unqlite/", "php_unqlite.h");
+}

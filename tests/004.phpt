@@ -25,6 +25,9 @@ function test($dbfile, $method, $params = array()) {
 
     unset($kvs1);
     unset($kvs2);
+
+    $db1->close();
+    $db2->close();
     unset($db1);
     unset($db2);
 }

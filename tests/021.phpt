@@ -37,6 +37,7 @@ test($doc, 5);
 test($doc, 'a');
 test($doc, null);
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

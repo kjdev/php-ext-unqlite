@@ -33,8 +33,6 @@
 
 #include "jansson/jansson.h"
 
-ZEND_EXTERN_MODULE_GLOBALS(unqlite)
-
 static inline int php_unqlite_to_json_object(zval **struc,
                                              json_t *json TSRMLS_DC);
 

@@ -27,6 +27,7 @@ var_dump($doc->drop());
 echo "=== db_exists ===\n";
 var_dump($doc->eval("print db_exists('test')"));
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

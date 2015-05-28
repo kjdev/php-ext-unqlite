@@ -61,6 +61,7 @@ var_dump($doc->commit());
 echo "FETCH:\n";
 var_dump($doc->fetch_all());
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

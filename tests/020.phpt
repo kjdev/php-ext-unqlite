@@ -42,6 +42,7 @@ $data = array(-9876,
 $doc->store($data);
 var_dump($doc->fetch_all());
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

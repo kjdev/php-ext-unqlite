@@ -36,17 +36,6 @@
 #include "unqlite_doc.h"
 #include "unqlite_exception.h"
 
-ZEND_DECLARE_MODULE_GLOBALS(unqlite)
-
-ZEND_INI_BEGIN()
-ZEND_INI_END()
-
-/*
-static void
-php_unqlite_init_globals(zend_unqlite_globals *unqlite_globals)
-{}
-*/
-
 #define UNQLITE_LONG_CONSTANT(name, val) \
     REGISTER_NS_LONG_CONSTANT(UNQLITE_NS, name, val, CONST_CS|CONST_PERSISTENT)
 #define UNQLITE_STRING_CONSTANT(name, val) \
@@ -83,15 +72,11 @@ ZEND_MINIT_FUNCTION(unqlite)
 
     UNQLITE_STRING_CONSTANT("DB_MEMORY", ":mem:");
 
-    REGISTER_INI_ENTRIES();
-
     return SUCCESS;
 }
 
 ZEND_MSHUTDOWN_FUNCTION(unqlite)
 {
-    UNREGISTER_INI_ENTRIES();
-
     return SUCCESS;
 }
 

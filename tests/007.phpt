@@ -113,6 +113,7 @@ _cursor_last($cur6);
 _cursor_key($cur6);
 _cursor_data($cur6);
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

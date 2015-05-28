@@ -31,8 +31,6 @@
 
 #include "unqlite_exception.h"
 
-ZEND_EXTERN_MODULE_GLOBALS(unqlite)
-
 zend_class_entry *php_unqlite_exception_ce;
 
 PHP_UNQLITE_API int

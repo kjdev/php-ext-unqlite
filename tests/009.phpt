@@ -29,6 +29,7 @@ var_dump($doc->eval(null));
 echo "=== invalid script ===\n";
 var_dump($doc->eval("print db_exists("));
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

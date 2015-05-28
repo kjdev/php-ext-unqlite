@@ -36,6 +36,7 @@ var_dump($doc->store(array(array('x' => 'XXX'),
 echo "=== count ===\n";
 var_dump($doc->count());
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

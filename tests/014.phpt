@@ -26,6 +26,8 @@ function test($data) {
     var_dump($doc->fetch_all());
 
     unset($doc);
+
+    $db->close();
     unset($db);
 
     _db_release($dbfile);

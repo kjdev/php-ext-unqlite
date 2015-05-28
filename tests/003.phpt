@@ -52,6 +52,7 @@ _kvs_fetch($kvs, "foo");
 _kvs_fetch($kvs, "hoge");
 _kvs_fetch($kvs, "test");
 
+$db->close();
 _db_release($dbfile);
 ?>
 --EXPECTF--

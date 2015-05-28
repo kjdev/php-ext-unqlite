@@ -51,9 +51,6 @@ extern zend_module_entry unqlite_module_entry;
 #    include "TSRM.h"
 #endif
 
-ZEND_BEGIN_MODULE_GLOBALS(unqlite)
-ZEND_END_MODULE_GLOBALS(unqlite)
-
 #ifdef ZTS
 #    define UNQLITE_G(v) TSRMG(unqlite_globals_id, zend_unqlite_globals *, v)
 #else

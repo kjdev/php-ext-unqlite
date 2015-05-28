@@ -34,8 +34,6 @@
 #include "unqlite_doc.h"
 #include "unqlite_exception.h"
 
-ZEND_EXTERN_MODULE_GLOBALS(unqlite)
-
 zend_class_entry *php_unqlite_doc_ce;
 static zend_object_handlers php_unqlite_doc_handlers;
 
