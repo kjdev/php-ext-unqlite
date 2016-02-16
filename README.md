@@ -270,7 +270,8 @@ unqlite.ini:
 
   **Return Values:**
 
-  Returns the associated string if the key/data pair is found, FALSE otherwise.
+  Returns the associated string if the key/data on key found,
+  NULL on key not found, FALSE on failure.
 
 ---
 
